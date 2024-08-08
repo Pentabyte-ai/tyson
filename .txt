@@ -1,0 +1,10 @@
+DB_USER=root
+MYSQL_ROOT_PASSWORD=root
+DB_PASSWORD=karanidancan120@gmail.com
+MY_SECRET_KEY=MY_SECRET_KEY
+EMAIL=karanidancan120@gmail.com
+SMTP_PASSWORD=npxx oidl rpmf gmbc
+COUNTRY_CODE=KE
+DB_NAME=mydb
+DB_HOST=localhost
+DB_PORT=3306

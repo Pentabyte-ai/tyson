@@ -3,29 +3,67 @@ package model
 import (
 	"errors"
 	"log"
+	"strconv"
+
+	//"strconv"
+
 	"github.com/DANCANKARANI/tyson/utilities"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
-func AddBike(c *fiber.Ctx) error {
-	bike := new(Bike)
-	url, _:=utilities.GenerateUrl(c,"image")
-	if err := c.BodyParser(bike); err != nil {
-		return errors.New("failed to parse request data")
+func AddBike(c *fiber.Ctx, providerID uuid.UUID) error {
+    bike := new(Bike)
+
+    // Parse the form data
+    form, err := c.MultipartForm()
+    if err != nil {
+        log.Printf("Error parsing multipart form: %v", err)
+        return errors.New("failed to parse form data")
+    }
+
+    // Get the file from the form
+   
+
+    // Save the file
+    url, err := utilities.SaveFile(c, "image")
+    if err != nil {
+        log.Printf("Error saving file: %v", err)
+        return errors.New("failed to save file")
+    }
+
+    // Get other form fields
+    bike.Location = form.Value["location"][0] 
+// Convert price string to float64
+	priceStr := form.Value["cost"][0]
+	price, err := strconv.ParseFloat(priceStr, 64)
+	if err != nil {
+		log.Println("Error converting price:", err)
+	
 	}
-	bike.ImageUrl=url
-	err := db.Create(&bike).Error
-	if err != nil{
-		return errors.New("failed to add bike")
-	}
-	return nil
+
+// Assign the parsed value to bike.Price
+bike.Price = price
+
+	bike.CalculateVAT(16)
+	
+    bike.ID = uuid.New()
+    bike.ProviderID = providerID
+    bike.ImageUrl = url
+
+    if err := db.Create(&bike).Error; err != nil {
+        log.Printf("Error adding bike to database: %v", err)
+        return errors.New("failed to add bike")
+    }
+
+    return nil
 }
+
 //update bikes
 func UpdateBike(c *fiber.Ctx, bike_id uuid.UUID)(*Bike, error){
 	bike := new(Bike)
-	url, _:=utilities.GenerateUrl(c,"image")
+	url, _:=utilities.SaveFile(c,"image")
 	if err:=c.BodyParser(&bike); err != nil{
 		log.Println(err.Error())
 		return nil, errors.New("failed to parse request data")
@@ -54,3 +92,7 @@ func GetBikeByLocation(location string)(*Bike,error){
 }
 
 
+func (p *Bike)CalculateVAT(vatRate float64){
+	p.Vat = p.Price*vatRate/100
+	p.Total = p.Price+p.Vat
+}

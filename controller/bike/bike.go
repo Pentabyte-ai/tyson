@@ -1,6 +1,8 @@
 package bike
 
 import (
+	"log"
+
 	"github.com/DANCANKARANI/tyson/model"
 	"github.com/DANCANKARANI/tyson/utilities"
 	"github.com/gofiber/fiber/v2"
@@ -8,7 +10,12 @@ import (
 )
 
 func AddBikeHandler(c *fiber.Ctx)error{
-	err := model.AddBike(c)
+	provider_id,err :=model.GetAuthUserID(c)
+	if err != nil{
+		log.Println(err.Error())
+	}
+	log.Println(provider_id)
+	err = model.AddBike(c,provider_id)
 	if err != nil{
 		return utilities.ShowError(c, err.Error(), fiber.StatusInternalServerError)
 	}
@@ -16,7 +23,12 @@ func AddBikeHandler(c *fiber.Ctx)error{
 }
 
 func UpdateBikeHandler(c *fiber.Ctx)error{
-	bike_id,_:= uuid.Parse(c.Params("id"))
+	bike_id,err:= uuid.Parse(c.Params("id"))
+	if err != nil{
+		log.Println(err.Error())
+		return err
+	}
+	log.Println(bike_id)
 	response, err := model.UpdateBike(c,bike_id)
 	if err != nil{
 		return utilities.ShowError(c, err.Error(),fiber.StatusInternalServerError)
