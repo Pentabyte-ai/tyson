@@ -68,5 +68,5 @@ func Logout(c *fiber.Ctx) error {
 		return utilities.ShowError(c,"failed to invalidate the token",fiber.StatusInternalServerError)
 	}
 	
-	return utilities.ShowMessage(c,"successfully logged out",fiber.StatusOK)
+	return utilities.ShowMessage(c,"successfully logged oujt",fiber.StatusOK)
 }
