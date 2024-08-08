@@ -77,19 +77,26 @@ func UpdateBike(c *fiber.Ctx, bike_id uuid.UUID)(*Bike, error){
 	return bike,err
 }
 //get bikes by location
-func GetBikeByLocation(location string)(*Bike,error){
-	bike := new(Bike)
-	if err := db.Model(&bike).Where("location = ?",location).Find(&bike).Scan((bike)).Error; err != nil{
-		if errors.Is(err, gorm.ErrRecordNotFound){
-			log.Println(err.Error())
-			err_str := "no bikes found for location "+location
-			return nil, errors.New(err_str)
-		}
-		log.Println(err.Error())
-		return nil, errors.New("failed to get bikes by location")
-	}
-	return bike,nil
+func GetBikeByLocation(location string) (*[]Bike, error) {
+    bikes := new([]Bike)
+
+    // Use SOUNDEX to match similar-sounding names
+    query := "SELECT * FROM bikes WHERE SOUNDEX(location) = SOUNDEX(?)"
+
+    if err := db.Raw(query, location).Scan(&bikes).Error; err != nil {
+        if errors.Is(err, gorm.ErrRecordNotFound) {
+            log.Println(err.Error())
+            errStr := "no bikes found for location " + location
+            return nil, errors.New(errStr)
+        }
+        log.Println(err.Error())
+        return nil, errors.New("failed to get bikes by location")
+    }
+
+    return bikes, nil
 }
+
+
 
 
 func (p *Bike)CalculateVAT(vatRate float64){

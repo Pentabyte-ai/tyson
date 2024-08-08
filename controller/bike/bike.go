@@ -38,6 +38,10 @@ func UpdateBikeHandler(c *fiber.Ctx)error{
 
 func GetBikeByLocationHandler(c *fiber.Ctx)error{
 	location := c.Query("location")
+	if location ==""{
+		log.Println("empty location")
+		return utilities.ShowError(c,"location is empty")
+	}
 	response, err := model.GetBikeByLocation(location)
 	if err != nil{
 		return utilities.ShowError(c,err.Error(),fiber.StatusInternalServerError)
