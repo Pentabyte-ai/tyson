@@ -48,3 +48,11 @@ func GetBikeByLocationHandler(c *fiber.Ctx)error{
 	}
 	return utilities.ShowSuccess(c, "successfully retrieved bikes by location",fiber.StatusOK,response)
 }
+
+func GetAllBikesHandler(c *fiber.Ctx)error{
+	response, err := model.GetAllBikes()
+	if err != nil{
+		return utilities.ShowError(c,err.Error(),fiber.StatusInternalServerError)
+	}
+	return utilities.ShowSuccess(c,"successfull retrieved bikes",fiber.StatusOK,response)
+}

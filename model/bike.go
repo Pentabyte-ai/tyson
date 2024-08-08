@@ -12,7 +12,16 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
-
+type ResBike struct{
+	ID 			uuid.UUID 	`json:"id" gorm:"type:varchar(36)"`
+	ProviderID  uuid.UUID	`json:"provider_id" gorm:"type:varchar(36); default:NULL"`
+	ImageUrl	string		`json:"image_url" gorm:"type:varchar(1024)"`
+	Location	string 		`json:"location" gorm:"type:varchar(255)"`
+	Price		float64		`json:"price" gorm:"type:decimal(13,4)"`
+	Vat			float64		`json:"vat" gorm:"type:decimal(13,4)"`
+	Total		float64		`json:"total" gorm:"type:decimal(13,4)"`
+	Owner      string    `json:"owner"`
+}
 func AddBike(c *fiber.Ctx, providerID uuid.UUID) error {
     bike := new(Bike)
 
@@ -77,26 +86,63 @@ func UpdateBike(c *fiber.Ctx, bike_id uuid.UUID)(*Bike, error){
 	return bike,err
 }
 //get bikes by location
-func GetBikeByLocation(location string) (*[]Bike, error) {
-    bikes := new([]Bike)
+func GetBikeByLocation( location string) (*[]ResBike, error) {
+	bikes := new([]ResBike)
 
-    // Use SOUNDEX to match similar-sounding names
-    query := "SELECT * FROM bikes WHERE SOUNDEX(location) = SOUNDEX(?)"
+	// Use SOUNDEX to match similar-sounding names and JOIN to get provider details
+	query := `
+        SELECT bikes.id, bikes.provider_id, bikes.image_url, bikes.location, bikes.price, bikes.vat, bikes.total,
+               providers.full_name AS owner
+        FROM bikes
+        LEFT JOIN providers ON bikes.provider_id = providers.id
+        WHERE SOUNDEX(bikes.location) = SOUNDEX(?)
+    `
 
-    if err := db.Raw(query, location).Scan(&bikes).Error; err != nil {
+	if err := db.Raw(query, location).Scan(&bikes).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Println(err.Error())
+			errStr := "no bikes found for location " + location
+			return nil, errors.New(errStr)
+		}
+		log.Println(err.Error())
+		return nil, errors.New("failed to get bikes by location")
+	}
+
+	// Log result to verify the owner field
+	for _, bike := range *bikes {
+		log.Printf("Bike ID: %s, Owner: %s\n", bike.ID, bike.Owner)
+	}
+
+	return bikes, nil
+}
+
+func GetAllBikes() (*[]ResBike, error) {
+    bikes := new([]ResBike)
+
+    // Query to get all bikes with provider details
+    query := `
+        SELECT bikes.id, bikes.provider_id, bikes.image_url, bikes.location, bikes.price, bikes.vat, bikes.total,
+               providers.full_name AS owner
+        FROM bikes
+        LEFT JOIN providers ON bikes.provider_id = providers.id
+    `
+
+    if err := db.Raw(query).Scan(&bikes).Error; err != nil {
         if errors.Is(err, gorm.ErrRecordNotFound) {
-            log.Println(err.Error())
-            errStr := "no bikes found for location " + location
-            return nil, errors.New(errStr)
+            log.Println("No bikes found")
+            return nil, errors.New("no bikes found")
         }
         log.Println(err.Error())
-        return nil, errors.New("failed to get bikes by location")
+        return nil, errors.New("failed to get all bikes")
+    }
+
+    // Log result to verify the owner field
+    for _, bike := range *bikes {
+        log.Printf("Bike ID: %s, Owner: %s\n", bike.ID, bike.Owner)
     }
 
     return bikes, nil
 }
-
-
 
 
 func (p *Bike)CalculateVAT(vatRate float64){
