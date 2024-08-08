@@ -40,7 +40,7 @@ func GetBikeByLocationHandler(c *fiber.Ctx)error{
 	location := c.Query("location")
 	if location ==""{
 		log.Println("empty location")
-		return utilities.ShowError(c,"location is empty")
+		return utilities.ShowError(c,"location is empty",fiber.StatusInternalServerError)
 	}
 	response, err := model.GetBikeByLocation(location)
 	if err != nil{
