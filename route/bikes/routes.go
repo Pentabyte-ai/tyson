@@ -15,6 +15,6 @@ func SetBikeRoutes(app *fiber.App) {
 	bikeGroup.Patch("/:id",bike.UpdateBikeHandler)
 	bikeGroup.Get("/",bike.GetBikeByLocationHandler)
 	bikeGroup.Get("/all",bike.GetAllBikesHandler)
-	bikeGroup.Post("/bookings:id",booking.BookingHandler)
+	bikeGroup.Post("/bookings/:id",booking.BookingHandler)
 
 }
