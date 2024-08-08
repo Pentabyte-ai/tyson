@@ -7,7 +7,7 @@ import (
 
 func SetUserRoutes(app *fiber.App) {
 	auth := app.Group("/api/v1/user")
-	auth.Post("/",user.CreateUserAccount)
+	auth.Post("/singup",user.CreateUserAccount)
 	auth.Post("/login",user.Login)
 	//protected routes
 	userGroup := auth.Group("/",user.JWTMiddleware)
