@@ -8,6 +8,8 @@ COUNTRY_CODE=KE
 DB_NAME=mydb
 DB_HOST=localhost
 DB_PORT=3306
+SMTP_PASSWORD=npxx oidl rpmf gmbc
+
 
 DB_USER=uywqfshpffweddzc
 MYSQL_ROOT_PASSWORD=root
@@ -19,3 +21,4 @@ COUNTRY_CODE=KE
 DB_NAME=bzahdiqabm1dl5u4ldfn
 DB_HOST=bzahdiqabm1dl5u4ldfn-mysql.services.clever-cloud.com
 DB_PORT=21683
+SMTP_PASSWORD=npxx oidl rpmf gmbc

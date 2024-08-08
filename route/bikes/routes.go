@@ -2,6 +2,7 @@ package bikes
 
 import (
 	"github.com/DANCANKARANI/tyson/controller/bike"
+	"github.com/DANCANKARANI/tyson/controller/booking"
 	"github.com/DANCANKARANI/tyson/controller/user"
 	"github.com/gofiber/fiber/v2"
 )
@@ -14,5 +15,6 @@ func SetBikeRoutes(app *fiber.App) {
 	bikeGroup.Patch("/:id",bike.UpdateBikeHandler)
 	bikeGroup.Get("/",bike.GetBikeByLocationHandler)
 	bikeGroup.Get("/all",bike.GetAllBikesHandler)
+	bikeGroup.Post("/bookings:id",booking.BookingHandler)
 
 }
